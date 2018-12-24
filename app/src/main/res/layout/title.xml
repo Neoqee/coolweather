@@ -4,6 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize">
 
+    <Button
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/btn_nav"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:text="切换"
+        />
+
     <TextView
         android:id="@+id/tv_title_city"
         android:layout_width="wrap_content"
