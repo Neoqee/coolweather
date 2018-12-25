@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.coolweather.android.gson.Forecast;
+import com.coolweather.android.gson.Lifestyle;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.service.AutoUpdateService;
 import com.coolweather.android.util.HttpUtil;
@@ -148,7 +149,7 @@ public class WeatherActivity extends AppCompatActivity {
      * @param weatherId
      */
     public void requestWeather(final String weatherId) {
-        String weatherUrl="https://api.heweather.net/weather?location="+weatherId+"&key=af9ed470d0c74226972bfed148e495fd";
+        String weatherUrl="https://free-api.heweather.net/s6/weather?location="+weatherId+"&key=32341f2bb21a4480a3a0bfa1edd07e36";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -190,11 +191,11 @@ public class WeatherActivity extends AppCompatActivity {
      * @param weather
      */
     private void showWeatherInfo(Weather weather) {
-        String cityName = weather.basic.cityName;
-        String updateTime = weather.basic.update.updateTime.split(" ")[1];
+        String location = weather.basic.cityName;
+        String updateTime = weather.update.updateTime;
         String degree = weather.now.temperature + "℃";
-        String weatherInfo = weather.now.more.info;
-        titleCity.setText(cityName);
+        String weatherInfo = weather.now.cond;
+        titleCity.setText(location);
         titleUpdateTime.setText(updateTime);
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
@@ -206,18 +207,15 @@ public class WeatherActivity extends AppCompatActivity {
             TextView maxText = view.findViewById(R.id.tv_max);
             TextView minText = view.findViewById(R.id.tv_min);
             dataText.setText(forecast.data);
-            infoText.setText(forecast.more.info);
-            maxText.setText(forecast.temperature.max);
-            minText.setText(forecast.temperature.min);
+            infoText.setText(forecast.condDay);
+            maxText.setText(forecast.tmpMax);
+            minText.setText(forecast.tmpMin);
             forecastLayout.addView(view);
         }
-        if (weather.aqi != null) {
-            aqiText.setText(weather.aqi.city.aqi);
-            pm25Text.setText(weather.aqi.city.pm25);
-        }
-        String comfort = "舒适度：" + weather.suggestion.comfort.info;
-        String carWash = "洗车指数：" + weather.suggestion.carWash.info;
-        String sport = "运动建议：" + weather.suggestion.sport.info;
+
+        String comfort = "舒适度：" + weather.lifestyle.get(0).info;
+        String carWash = "洗车指数：" + weather.lifestyle.get(6).info;
+        String sport = "运动建议：" + weather.lifestyle.get(3).info;
         comfortText.setText(comfort);
         carWashText.setText(carWash);
         sportText.setText(sport);
