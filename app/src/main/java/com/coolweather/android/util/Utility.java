@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.County;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.gson.Air;
 import com.coolweather.android.gson.Weather;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -59,7 +60,7 @@ public class Utility {
     }
 
     /**
-     *解析和吃力服务器返回的县级数据
+     *解析和处理服务器返回的县级数据
      */
     public static boolean handleCountyResponse(String response,int cityId){
         if(!TextUtils.isEmpty(response)){
@@ -97,4 +98,19 @@ public class Utility {
         return null;
     }
 
+    /**
+     * 将返回的JSON数据解析成Air实体类
+     */
+    public static Air handleAirResponse(String response){
+        try {
+            JSONObject jsonObject=new JSONObject(response);
+            JSONArray jsonArray=jsonObject.getJSONArray("HeWeather6");
+            String weatherContent=jsonArray.getJSONObject(0).toString();
+            Air air=new Gson().fromJson(weatherContent,Air.class);
+            return air;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

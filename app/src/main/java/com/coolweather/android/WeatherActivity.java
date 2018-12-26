@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.coolweather.android.gson.Air;
 import com.coolweather.android.gson.Forecast;
 import com.coolweather.android.gson.Lifestyle;
 import com.coolweather.android.gson.Weather;
@@ -51,6 +52,7 @@ public class WeatherActivity extends AppCompatActivity {
     private String mWeatherId;
     public DrawerLayout drawerLayout;
     private Button navButton;
+    private String mParentCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +91,8 @@ public class WeatherActivity extends AppCompatActivity {
             Weather weather= Utility.handleWeatherResponse(weatherString);
             mWeatherId=weather.basic.weatherId;
             showWeatherInfo(weather);
+            mParentCity = weather.basic.parentCity;
+            requestAir(mParentCity);
         }else{
             //无缓存时去服务器查询天气
             mWeatherId=getIntent().getStringExtra("weather_id");
@@ -115,6 +119,48 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    /**
+     * 根据上级城市名请求空气质量
+     * @param parentCity
+     */
+    private void requestAir(final String parentCity) {
+        String airUrl="https://free-api.heweather.net/s6/air/now?location="+parentCity+"&key=32341f2bb21a4480a3a0bfa1edd07e36";
+        HttpUtil.sendOkHttpRequest(airUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String responseText=response.body().string();
+                final Air air=Utility.handleAirResponse(responseText);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(air!=null&&"ok".equals(air.status)){
+                            showAirInfo(air);
+                        }else{
+                            Toast.makeText(WeatherActivity.this, "获取空气质量信息失败", Toast.LENGTH_SHORT).show();
+                        }
+                        swipeRefresh.setRefreshing(false);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * 处理并展示Air实体类中的数据
+     * @param air
+     */
+    private void showAirInfo(Air air) {
+        if(air!=null){
+            aqiText.setText(air.aqiCity.aqi);
+            pm25Text.setText(air.aqiCity.pm25);
+        }
     }
 
     /**
@@ -176,6 +222,8 @@ public class WeatherActivity extends AppCompatActivity {
                             editor.apply();
                             mWeatherId=weather.basic.weatherId;
                             showWeatherInfo(weather);
+                            mParentCity=weather.basic.parentCity;
+                            requestAir(mParentCity);
                         }else{
                             Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
                         }
@@ -202,11 +250,11 @@ public class WeatherActivity extends AppCompatActivity {
         forecastLayout.removeAllViews();
         for (Forecast forecast : weather.forecastList) {
             View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
-            TextView dataText = view.findViewById(R.id.tv_data);
+            TextView dataText = view.findViewById(R.id.tv_date);
             TextView infoText = view.findViewById(R.id.tv_info);
             TextView maxText = view.findViewById(R.id.tv_max);
             TextView minText = view.findViewById(R.id.tv_min);
-            dataText.setText(forecast.data);
+            dataText.setText(forecast.date);
             infoText.setText(forecast.condDay);
             maxText.setText(forecast.tmpMax);
             minText.setText(forecast.tmpMin);

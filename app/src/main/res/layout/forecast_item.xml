@@ -10,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="2"
-        android:id="@+id/tv_data"
+        android:id="@+id/tv_date"
         android:layout_gravity="center_vertical"
         android:textColor="#fff"
         />

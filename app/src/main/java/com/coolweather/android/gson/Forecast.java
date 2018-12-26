@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Forecast {
 
-    public String data;
+    public String date;
     @SerializedName("tmp_max")
     public String tmpMax;
     @SerializedName("tmp_min")
